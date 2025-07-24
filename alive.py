@@ -1,14 +1,22 @@
 from http.server import BaseHTTPRequestHandler, HTTPServer
+import threading
 
 class SimpleHandler(BaseHTTPRequestHandler):
     def do_GET(self):
-        self.send_response(200)
-        self.send_header("Content-type", "text/plain")
-        self.end_headers()
-        self.wfile.write(b"running")
+        if self.path == "/":
+            self.send_response(200)
+            self.send_header("Content-type", "text/plain")
+            self.end_headers()
+            self.wfile.write(b"running")
+        else:
+            self.send_response(404)
+            self.end_headers()
 
-if __name__ == "__main__":
-    server_address = ("0.0.0.0", 8080)  # Listen on all interfaces, port 8000
+def run_server():
+    server_address = ('0.0.0.0', 8080)
     httpd = HTTPServer(server_address, SimpleHandler)
-    print("Serving on port 8080...")
     httpd.serve_forever()
+
+# Start server in a background thread
+server_thread = threading.Thread(target=run_server, daemon=True)
+server_thread.start()
